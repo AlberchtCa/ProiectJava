@@ -23,6 +23,7 @@ public class RouteService {
     private static final RouteService routeService = new RouteService();
     Scanner scan = new Scanner(System.in);
     IOservice ioService = IOservice.getInstance();
+    DataManager dataManager = DataManager.getInstance();
     private RouteService(){
         
     }
@@ -175,10 +176,10 @@ public class RouteService {
         //SHOW STATIONS FUNCTION
     public void showStations(){
         int i;
-        for(i=0;i<station_no;i++){
+        for(i=0;i<stations.size();i++){
             System.out.println((i+1) + "." + stations.get(i).getName());
         }
-        if(station_no == 0){
+        if(stations.size() == 0){
             System.out.println("No stations.");
         }
         
@@ -270,6 +271,14 @@ public class RouteService {
         ioService.WriteToAudit(GetDateTime(),"addVehicle");
     }
     
+        //REMOVE STAITON FUNCTION
+    public void deleteStation(int stationIndex){
+        System.out.println("Station with name '" + stations.get(stationIndex).getName() + "' has been removed.");
+        stations.remove(stationIndex);
+        station_no--;
+        ioService.WriteToAudit(GetDateTime(),"deleteStation");
+    }
+    
     public Date GetDateTime()
     {
             DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
@@ -277,7 +286,33 @@ public class RouteService {
             return date;
     }
     
+    public void addDataToDB(List<Station> stations){
+        int i;
+        for(i=0;i<stations.size();i++){
+            dataManager.addStation(stations.get(i));
+        }
+    }
+    
+    public void getDataFromDB(){
+        List<Station> newStations = dataManager.getStationsFromDB();
+        int i;
+        for(i=0;i<newStations.size();i++){
+            stations.add(newStations.get(i));
+            station_no++;
+        }
+        
+    }
+    
+    public void updateDB(){
+        dataManager.clearDB();
+        int i;
+        for(i=0;i<stations.size();i++)
+        dataManager.addStation(stations.get(i));
+        
+    }
+    
     public void getDataFromFiles(){
+        /*
         //STATIONS
         List<Station> stations_from_file = new ArrayList<>();
         stations_from_file = ioService.GetStationsFromFile();
@@ -286,6 +321,8 @@ public class RouteService {
             stations.add(stations_from_file.get(i));
             station_no++;
         }
+        */
+        int i;
         
         //LINKS
         List<LinksBelongTo> links_from_file = new ArrayList<>();

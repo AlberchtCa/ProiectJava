@@ -2,6 +2,9 @@ package Main;
 
 import java.util.Scanner;
 import java.util.Date;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 ////////////######   DESCRIEREA PROIECTULUI ESTE LA BAZA SURSEI ACESTEA. #######################///////////////////
 ////////////######   ################################################### #######################///////////////////
@@ -13,15 +16,21 @@ public class Main {
         
         //APELEZ SERVICEUL DE PROCESARE
         RouteService routeService = RouteService.getInstance();
+        DataManager dataManager = DataManager.getInstance();
         //ADAUG STATIILE INITIALE DIN CODUL SURSA DIN SERVICE (RouteService, line : 280)
-        routeService.AppendToStationsList();
+//        routeService.AppendToStationsList();
         int g=1;
         int i;
+        
+        //ADAUG IN BAZA DE DATE:
+//        routeService.addDataToDB();
+        routeService.getDataFromDB();
         
         //ADAUG DATELE DIN FISIERE
         routeService.getDataFromFiles();
         
-        
+
+
         //MENIUL PRINCIPAL
         while(g==1){
             showOptions();
@@ -52,11 +61,16 @@ public class Main {
                 case 8:
                     changeLinks(routeService);
                     break;
+                case 9:
+                    deleteStation(routeService);
+                    break;
                 case 0:
                     g=0;
                     break;
             }
         }
+        
+        routeService.updateDB();
     }
     
     public static void showOptions(){
@@ -68,6 +82,7 @@ public class Main {
         System.out.println("6. Add Vehicle");
         System.out.println("7. Show the links of a station.");
         System.out.println("8. Change the links of an existing station.");
+        System.out.println("9. Remove a route.");
         System.out.println("0. Exit");
     }
     
@@ -124,6 +139,14 @@ public class Main {
         routeService.showStations();
         int chosen_index = scan.nextInt();
         routeService.changeLinks(chosen_index-1);
+        returnValue(0);
+    }
+    
+    public static void deleteStation(RouteService routeService){
+        System.out.println("Choose which station you want to remove:");
+        routeService.showStations();
+        int chosen_index = scan.nextInt();
+        routeService.deleteStation(chosen_index-1);
         returnValue(0);
     }
     
